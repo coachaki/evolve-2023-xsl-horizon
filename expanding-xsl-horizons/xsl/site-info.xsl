@@ -12,9 +12,18 @@
 	
 	<xsl:mode on-no-match="shallow-copy"/>
 	<xsl:template match="processing-instruction()|comment()" />
-
-	<xsl:param name="title" select="/descendant::title[1]"/>
-
+	
+	<xsl:param name="title" select="/descendant::title"/>	
+	<xsl:param name="ou:root"/>
+	<xsl:param name="ou:site"/>
+	<xsl:param name="ou:stagingpath"/>
+	<xsl:param name="ou:skin" select="($ou:root => tokenize('/'))[4]"/>
+	<xsl:param name="ou:account" select="($ou:root => tokenize('/'))[5]"/>
+	
+	<xsl:param name="ignore-extensions" select="/document/descendant::parameter[@name='ignore-extensions'] => normalize-space() => tokenize('\s*,\s*')"/>
+	<xsl:param name="sites" select="let $sites := /document/descendant::parameter[@name='sites'] => normalize-space()
+		return if ($sites) then tokenize($sites, '\s*,\s*') else $ou:site"/>
+	
 	<xsl:template match="/document">
 		<html lang="en">
 			<head>
@@ -33,14 +42,16 @@
 						<div class="row py-lg-5">
 							<div class="col-lg-6 col-md-8 mx-auto">
 								<h1>{$title}</h1>
-								<!-- do stuff here -->
-								<!--
-									1. Use doc() function to list all files in the current site
-									2. Display the title if the file is a PCF
-									3. Turn the list into edit links
-									4. Add support for ignoring extensions
-									5. Add support for listing files from other sites
-								-->
+								<xsl:for-each select="$sites">
+									<xsl:variable name="path" select="$ou:root || ."/>
+									
+									<h2>{.}</h2>
+									<xsl:if test="doc-available($path)">
+										<xsl:apply-templates select="doc($path)" mode="page-list">
+											<xsl:with-param name="path" select="$path" tunnel="true"/>
+										</xsl:apply-templates>
+									</xsl:if>
+								</xsl:for-each>
 							</div>
 						</div>
 					</div>
@@ -50,5 +61,71 @@
 			</body>
 		</html>
 	</xsl:template>
+	
+	<xsl:template match="list" mode="page-list">
+		<xsl:param name="path" tunnel="true"/>
+		
+		<ul>
+			<xsl:apply-templates select="node()" mode="#current">
+				<xsl:with-param name="path" select="$path" tunnel="true"/>
+				<xsl:sort select="."/>
+			</xsl:apply-templates>
+		</ul>
+	</xsl:template>
+	
+	<xsl:template match="directory" mode="page-list">
+		<xsl:param name="path" tunnel="true"/>
+		
+		<xsl:variable name="new-path" select="$path || '/' || ."/>
+		
+		<li>
+			{.}/
+			<xsl:apply-templates select="doc($new-path)" mode="#current">
+				<xsl:with-param name="path" select="$new-path" tunnel="true"/>
+				<xsl:sort select="."/>
+			</xsl:apply-templates>
+		</li>
+	</xsl:template>
+	
+	<xsl:template match="file" mode="page-list">
+		<xsl:param name="path" tunnel="true"/>
+		
+		<li>{.}</li>
+	</xsl:template>
+	
+	<xsl:template match="file[let $file := . return $ignore-extensions!ends-with($file, .) = true()]" mode="page-list"/>
+	
+	<xsl:template match="file[ends-with(., '.pcf')]" mode="page-list">
+		<xsl:param name="path" tunnel="true"/>
+		
+		<xsl:variable name="new-path" select="$path || '/' || ."/>
+		
+		<li>
+			<xsl:choose>
+				<xsl:when test="doc-available($new-path)">
+					<a target="_blank">
+						<xsl:attribute name="href" select="ou:get-preview-link($new-path)"/>
+						<xsl:value-of select="."/>
+						<xsl:if test="doc($new-path)/document/descendant::title[1] => normalize-space()">
+							-- {doc($new-path)/document/descendant::title[1]}
+						</xsl:if>
+					</a>
+				</xsl:when>
+				<xsl:otherwise>
+					{.} (invalid xml)
+				</xsl:otherwise>
+			</xsl:choose>
+		</li>
+	</xsl:template>
+	
+	<xsl:function name="ou:get-preview-link">
+		<xsl:param name="staging-full-path" />
+		
+		<xsl:variable name="base-url" select="'https://a.cms.omniupdate.com/11/#'"/>
+		<xsl:variable name="site" select="($staging-full-path => tokenize('/'))[6]"/>
+		<xsl:variable name="staging-path" select="$staging-full-path => substring-after($ou:account || '/' || $site)"/>
+		
+		<xsl:value-of select="concat($base-url, $ou:skin, '/', $ou:account, '/', $site, '/previewedit', $staging-path)"/>
+	</xsl:function>
 	
 </xsl:stylesheet>
