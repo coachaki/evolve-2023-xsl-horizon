@@ -17,6 +17,11 @@
 	</ouc:properties>
 
 	<ouc:properties label="config">
+		<parameter group="Everyone" name="ignore-extensions" type="text"
+			prompt="Extensions to Ignore"
+			alt="Enter a csv of extensions to ignore (e.g., pdf, png, jpg)"></parameter>
+		<parameter group="Everyone" name="sites" type="text" prompt="Sites"
+			alt="Enter a csv of sites to check."></parameter>
 	</ouc:properties>
 
 </document>
