@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pcf-stylesheet path="/expanding-xsl-horizons/xsl/site-info.xsl" title="Web" extension="html"?>
+
+<!DOCTYPE document SYSTEM "http://commons.omniupdate.com/dtd/standard.dtd">
+
+<document xmlns:ouc="http://omniupdate.com/XSL/Variables">
+	
+	<headcode></headcode>
+	<bodycode></bodycode>
+	<footcode></footcode>
+	
+	<ouc:info>evolve 2023 xsl workshop</ouc:info>
+
+	<ouc:properties label="metadata">
+		<title>Page Title</title>
+		<meta name="Description" content="" />
+		<meta name="Keywords" content="" />
+	</ouc:properties>
+	
+	<ouc:properties label="config">
+		<parameter group="Everyone" name="ignore-extensions" type="text" prompt="Extensions to Ignore" alt="Enter a csv of extensions to ignore (e.g., pdf, png, jpg)">pdf, png, jpg, svg, js</parameter>
+		<parameter group="Everyone" name="sites" type="text" prompt="Sites" alt="Enter a csv of sites to check.">temporary-dev</parameter>
+	</ouc:properties>
+	
+</document>
