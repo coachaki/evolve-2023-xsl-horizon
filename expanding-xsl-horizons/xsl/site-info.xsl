@@ -11,15 +11,16 @@
 	<xsl:output method="html" version="5.0" indent="yes" encoding="UTF-8" include-content-type="no"/>
 	
 	<xsl:mode on-no-match="shallow-copy"/>
-	
 	<xsl:template match="processing-instruction()|comment()" />
-	
+
+	<xsl:param name="title" select="/descendant::title[1]"/>
+
 	<xsl:template match="/document">
 		<html lang="en">
 			<head>
 				<meta charset="UTF-8" /> <!-- charset encoding -->
 				<meta http-equiv="x-ua-compatible" content="ie=edge" /> <!-- compatibility mode for IE / Edge -->
-				<title>Site Info</title> <!-- page title -->
+				<title>{$title}</title> <!-- page title -->
 				<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" /> <!-- viewport -->
 				<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
 			</head>
@@ -31,7 +32,7 @@
 					<div class="container">
 						<div class="row py-lg-5">
 							<div class="col-lg-6 col-md-8 mx-auto">
-								<h1>Site Info</h1>
+								<h1>{$title}</h1>
 								<!-- do stuff here -->
 								<!--
 									1. Use doc() function to list all files in the current site
